@@ -10,6 +10,7 @@ code brought in from the jupyter notebook 'import shytruth - final version'
 import pandas as pd
 import numpy as np
 import csv
+import zipfile
 
 eTradeName = 'unrecorded trade name'
 eSupplier = 'unrecorded supplier'
@@ -79,22 +80,46 @@ def rename_fields(df):
           'additive_concentration':'PercentHighAdditive',
           'fracture_date':'JobEndDate','comments':'IngredientComment'
           }
-    
-    df = df.rename(index=str,columns=rn)
-    
-    
-    df['IngredientKey'] = 'SKY_pdf_'+ df.raw_filename.astype('str').str[:4] \
+    df = df.rename(index=str,columns=rn)    
+    df['UploadKey'] = 'SKY_pdf_'+ df.pdf_seqid.astype('str').str[:] \
+                           + '_' + df.raw_filename.str[-2:]
+    df['IngredientKey'] = 'SKY_pdf_'+ df.pdf_seqid.astype('str').str[:] \
+                           + '_' + df.raw_filename.str[-2:] \
                            + '_' + df.c_seqid.astype('str').str[:-2]
     return df
 
+def coerce_number_fields(df):
+    coerce_lst = ['TVD','TotalBaseWaterVolume','PercentHighAdditive',
+                  'PercentHFJob']
+    for f in coerce_lst:
+        df[f] = pd.to_numeric(df[f],errors='coerce')
+    return df
+
+def adjust_api(df):
+    """ api is in the form of XX-XXX-XXXX... but needs to be an integer
+    and the StateNumber and CountyNumber need to be extracted from it."""
+    df['StateNumber'] = df.api.str[:2].astype(int)
+    df['CountyNumber'] = df.api.str[3:6].astype(int)
+    df.api = df.api.str.replace('-','')
+    df.api = pd.to_numeric(df.api)
+    return df
+
 def save_final(df):
-    df.to_csv('./sources/sky_truth_final.csv',
+    outcsv = './sources/sky_truth_final.csv'
+    outzip = './sources/sky_truth_final.zip'
+    df = df.drop(['c_seqid','cas_type','pdf_seqid',
+                  'production_type','published','r_seqid','row'],axis=1)
+    df.to_csv(outcsv,
               quotechar='$',quoting=csv.QUOTE_ALL,index=False)
+    with zipfile.ZipFile(outzip,'w') as z:
+        z.write(outcsv,compress_type=zipfile.ZIP_DEFLATED)
     
 
 if __name__ == '__main__':
     df = get_df()
     df = fill_fields(df)
     save_tn_expansion(df)
+    df = adjust_api(df)
     df = rename_fields(df)
+    df = coerce_number_fields(df)
     

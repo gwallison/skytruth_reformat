@@ -64,6 +64,7 @@ def reformat(outfn=outfn):
 
 def pandas_sort_df():
     df = pd.read_csv(outfn,quotechar='$',low_memory=False)
+    df = df[~df.r_seqid.isna()] #  drop those empty records at the end of the files.
     df = df.sort_values(by=['raw_filename','r_seqid','pdf_seqid','c_seqid','row'])    
     df.to_csv('./sources/sky_truth_sorted_raw.csv',index=False,
               quotechar='$',quoting=csv.QUOTE_ALL)
