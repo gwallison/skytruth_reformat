@@ -1,2 +1,12 @@
-/__pycache__/
-/sources/
+*.zip
+*.pyc
+*.dbf
+*.shp
+*.bak
+.ipynb_checkpoints/*.*
+out/*.*
+out/old/*.*
+tmp/*.*
+__pycache__
+temp.csv
+sources/*.*

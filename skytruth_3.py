@@ -16,6 +16,10 @@ eTradeName = 'unrecorded trade name'
 eSupplier = 'unrecorded supplier'
 ePurpose = 'unrecorded purpose'
 
+# the following APINumbers are for misformed records, even in the original
+#   pdfs.  It appears that mostly data are shifted over by one column, however,
+#   this routine just eliminates all records from the output.
+
 def get_df():
     return pd.read_csv('./sources/sky_truth_flagged.csv',
                        low_memory=False,quotechar='$')
