@@ -112,7 +112,9 @@ def save_final(df):
     outcsv = './sources/sky_truth_final.csv'
     outzip = './sources/sky_truth_final.zip'
     df = df.drop(['c_seqid','cas_type','pdf_seqid',
-                  'production_type','published','r_seqid','row'],axis=1)
+                  # 'published' re-included Jan. 2021
+                  'production_type', ##'published',
+                  'r_seqid','row'],axis=1)
     df.to_csv(outcsv,
               quotechar='$',quoting=csv.QUOTE_ALL,index=False)
     with zipfile.ZipFile(outzip,'w') as z:
